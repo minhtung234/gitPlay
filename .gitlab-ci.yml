@@ -1,4 +1,4 @@
-build-job:
+prequisite-job:
   stage: build
   script: 
     - python --version
