@@ -1,6 +1,8 @@
-.pre-job:
-  stage: .pre
-  script: python --version
+build-job:
+  stage: build
+  script: 
+    - python --version
+    - where python
 
 build-job:
   stage: build
