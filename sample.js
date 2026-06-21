@@ -1,0 +1,1 @@
+console.log("If this works: VanillaJS works here.");

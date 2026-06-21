@@ -1,52 +1,70 @@
+# can add as many user-defined stages as desired.
+# but .pre and .post had precedence above all else regardless of being explicitly declared/defined or not
+# default order: .pre, build, test, deploy, .post
+stages: [validate, lint, confirm]
+
 prerequisite-job:
   stage: .pre
   script: 
     - python --version
     - where python
-  environment: dev
-
-confirm-job:
-  stage: .pre
-  script: 
     - node --version
     - where node
   environment: dev
 
+validate-job:
+  stage: validate
+  script: 
+    - python sample.py
+    - node sample.js
+  environment: dev
+
 build-job:
   stage: build
+  needs:
+    - job: prerequisite-job
+    - job: validate-job
   script:
     - echo "Hello, $GITLAB_USER_LOGIN!"
   environment: dev
 
-test-job1:
+confirm-job:
+  stage: confirm
+  script:
+    - ping localhost
+
+test-BE-job:
   stage: test
   script:
-    - echo "This job tests something"
+    - echo "This job tests backend functionalities."
   environment: testing
 
-test-job2:
+test-FE-job:
   stage: test
+  needs: [test-job-BE]
+  when: always
   script:
-    - echo "This job tests something, but takes more time than test-job1."
+    - echo "This job tests frontend functionalities."
     - echo "After the echo commands complete, it runs the sleep command for 20 seconds"
-    - echo "which simulates a test that runs 20 seconds longer than test-job1"
+    - echo "which simulates a test that runs 20 seconds longer than test-job-BE."
     - sleep 20
   environment: testing
 
-pre-deploy:
+pre-deploy-job:
   stage: deploy
   script: 
     - echo "Prepare for launch"
-    - ping www.google.com -t
+    - ping www.google.com
 
-deploy-prod:
+deploy-prod-job:
   stage: deploy
+  needs: [pre-deploy-job]
   script:
     - echo "This job deploys something from the $CI_COMMIT_BRANCH branch."
     - echo "Toggle off instance runners to bypass account verification."
   environment: production
 
-cleanup:
+cleanup-job:
   stage: .post
   script:
     - echo "Cleaning up..."

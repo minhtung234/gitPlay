@@ -1,1 +1,7 @@
 init project Jun 13 2026
+notes: since gitlab only pushes to github 
+on free tier:
+for this project: clone the repo from gitlab 
+to local machine, work as usual, 
+then commit to gitlab, then the auto-mirroring
+will sync to github.
