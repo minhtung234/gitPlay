@@ -70,6 +70,9 @@ test-microservices-job:
 lint-job:
   stage: lint
   when: manual
+  script: 
+  - echo "Sometimes you have to get your hands dirty..."
+  manual_confirmation: 'Are you sure you want to trigger linting manually?'
 
 pre-deploy-job:
   stage: deploy
