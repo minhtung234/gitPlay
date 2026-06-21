@@ -1,7 +1,8 @@
 # can add as many user-defined stages as desired.
 # but .pre and .post had precedence above all else regardless of being explicitly declared/defined or not
 # default order: .pre, build, test, deploy, .post
-stages: [validate, lint, confirm]
+# when: default in on_success
+stages: [validate, build, confirm, test, lint, deploy]
 
 prerequisite-job:
   stage: .pre
@@ -28,21 +29,29 @@ build-job:
     - echo "Hello, $GITLAB_USER_LOGIN!"
   environment: dev
 
-confirm-job:
+confirm-BE-job:
   stage: confirm
   script:
     - ping localhost
+    - echo "localhost pinged."
+
+confirm-FE-job:
+  stage: confirm
+  script:
+    - ping www.google.com
+    - echo "google pinged."
 
 test-BE-job:
   stage: test
+  needs:
+    - job: confirm-BE-job
+    - job: confirm-FE-job
   script:
     - echo "This job tests backend functionalities."
   environment: testing
 
 test-FE-job:
   stage: test
-  needs: [test-job-BE]
-  when: always
   script:
     - echo "This job tests frontend functionalities."
     - echo "After the echo commands complete, it runs the sleep command for 20 seconds"
@@ -50,11 +59,22 @@ test-FE-job:
     - sleep 20
   environment: testing
 
+test-microservices-job:
+  stage: test
+  needs: [test-job-BE, test-job-FE]
+  when: always
+  script:
+    - echo "This job tests microservices."
+  environment: testing
+
+lint-job:
+  stage: lint
+  when: manual
+
 pre-deploy-job:
   stage: deploy
   script: 
     - echo "Prepare for launch"
-    - ping www.google.com
 
 deploy-prod-job:
   stage: deploy
@@ -66,6 +86,7 @@ deploy-prod-job:
 
 cleanup-job:
   stage: .post
+  when: always
   script:
     - echo "Cleaning up..."
     - sleep 10
