@@ -61,7 +61,7 @@ test-FE-job:
 
 test-microservices-job:
   stage: test
-  needs: [test-job-BE, test-job-FE]
+  needs: [test-BE-job, test-FE-job]
   when: always
   script:
     - echo "This job tests microservices."
